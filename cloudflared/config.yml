@@ -1,5 +1,5 @@
-tunnel: fe347262-63b1-4034-81b5-361d4f0a74e0
-credentials-file: /etc/cloudflared/fe347262-63b1-4034-81b5-361d4f0a74e0.json
+tunnel: <your-tunnel-id>
+credentials-file: /etc/cloudflared/credentials.json
 
 ingress:
   - hostname: appflowy.ramonma.online
