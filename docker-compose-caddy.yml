@@ -1,0 +1,15 @@
+# Caddy reverse proxy for AppFlowy
+services:
+  caddy:
+    restart: on-failure
+    image: caddy:2-alpine
+    ports:
+      - "8083:80"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - appflowy-cloud_default
+
+networks:
+  appflowy-cloud_default:
+    external: true

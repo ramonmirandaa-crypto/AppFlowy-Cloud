@@ -1,0 +1,52 @@
+{
+  email {$CADDY_EMAIL:admin@ramonma.online}
+  auto_https off
+}
+
+appflowy.ramonma.online:80 {
+  # Health check para o AppFlowy Cloud API
+  handle /api/health {
+    reverse_proxy appflowy_cloud:8000
+  }
+
+  # GoTrue authentication
+  handle /gotrue/* {
+    uri strip_prefix /gotrue
+    reverse_proxy gotrue:9999
+  }
+
+  # WebSocket support
+  handle /ws {
+    reverse_proxy appflowy_cloud:8000 {
+      header_up Upgrade {http.request.header.Upgrade}
+      header_up Connection {http.request.header.Connection}
+    }
+  }
+
+  # API endpoints
+  handle /api/* {
+    reverse_proxy appflowy_cloud:8000
+  }
+
+  # Admin Console
+  handle /console/* {
+    reverse_proxy admin_frontend:3000
+  }
+
+  # MinIO Console
+  handle /minio/* {
+    uri strip_prefix /minio
+    reverse_proxy minio:9001
+  }
+
+  # MinIO API
+  handle /minio-api/* {
+    uri strip_prefix /minio-api
+    reverse_proxy minio:9000
+  }
+
+  # AppFlowy Web
+  handle {
+    reverse_proxy appflowy_web:3000
+  }
+}

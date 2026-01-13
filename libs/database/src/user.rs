@@ -73,7 +73,7 @@ pub async fn update_user(
   // where
   args_num += 1;
   let query = format!(
-    "UPDATE af_user SET {} WHERE uuid = ${}",
+    "UPDATE public.af_user SET {} WHERE uuid = ${}",
     set_clauses.join(", "),
     args_num
   );
@@ -119,15 +119,15 @@ pub async fn create_user<'a, E: Executor<'a, Database = Postgres>>(
   let row = sqlx::query!(
     r#"
     WITH ins_user AS (
-        INSERT INTO af_user (uid, uuid, email, name)
+        INSERT INTO public.af_user (uid, uuid, email, name)
         VALUES ($1, $2, $3, $4)
         RETURNING uid
     ),
     owner_role AS (
-        SELECT id FROM af_roles WHERE name = 'Owner'
+        SELECT id FROM public.af_roles WHERE name = 'Owner'
     ),
     ins_workspace AS (
-        INSERT INTO af_workspace (owner_uid)
+        INSERT INTO public.af_workspace (owner_uid)
         SELECT uid FROM ins_user
         RETURNING workspace_id, owner_uid
     )
@@ -152,7 +152,7 @@ pub async fn select_uuid_from_uid<'a, E: Executor<'a, Database = Postgres>>(
 ) -> Result<Uuid, AppError> {
   let uuid = sqlx::query_scalar!(
     r#"
-      SELECT uuid FROM af_user WHERE uid = $1
+      SELECT uuid FROM public.af_user WHERE uid = $1
     "#,
     user_uid
   )
@@ -169,7 +169,7 @@ pub async fn select_uid_from_uuid<'a, E: Executor<'a, Database = Postgres>>(
 ) -> Result<i64, AppError> {
   let uid = sqlx::query!(
     r#"
-      SELECT uid FROM af_user WHERE uuid = $1
+      SELECT uid FROM public.af_user WHERE uuid = $1
     "#,
     user_uuid
   )
@@ -182,7 +182,7 @@ pub async fn select_uid_from_uuid<'a, E: Executor<'a, Database = Postgres>>(
 pub fn select_all_uid_uuid<'a, E: Executor<'a, Database = Postgres> + 'a>(
   executor: E,
 ) -> BoxStream<'a, sqlx::Result<AFUserIdRow>> {
-  sqlx::query_as!(AFUserIdRow, r#" SELECT uid, uuid FROM af_user"#,).fetch(executor)
+  sqlx::query_as!(AFUserIdRow, r#" SELECT uid, uuid FROM public.af_user"#,).fetch(executor)
 }
 
 #[inline]
@@ -192,7 +192,7 @@ pub async fn select_uid_from_email<'a, E: Executor<'a, Database = Postgres>>(
 ) -> Result<i64, AppError> {
   let uid = sqlx::query!(
     r#"
-      SELECT uid FROM af_user WHERE email = $1
+      SELECT uid FROM public.af_user WHERE email = $1
     "#,
     email
   )
@@ -211,7 +211,7 @@ pub async fn is_user_exist<'a, E: Executor<'a, Database = Postgres>>(
     r#"
     SELECT EXISTS(
       SELECT 1
-      FROM af_user
+      FROM public.af_user
       WHERE uuid = $1
     ) AS user_exists;
   "#,
@@ -230,7 +230,7 @@ pub async fn select_email_from_user_uuid(
 ) -> Result<String, AppError> {
   let email = sqlx::query_scalar!(
     r#"
-      SELECT email FROM af_user WHERE uuid = $1
+      SELECT email FROM public.af_user WHERE uuid = $1
     "#,
     user_uuid
   )
@@ -243,7 +243,7 @@ pub async fn select_email_from_user_uuid(
 pub async fn select_email_from_user_uid(pool: &PgPool, user_uid: i64) -> Result<String, AppError> {
   let email = sqlx::query_scalar!(
     r#"
-      SELECT email FROM af_user WHERE uid = $1
+      SELECT email FROM public.af_user WHERE uid = $1
     "#,
     user_uid
   )
@@ -256,7 +256,7 @@ pub async fn select_email_from_user_uid(pool: &PgPool, user_uid: i64) -> Result<
 pub async fn select_name_from_uuid(pool: &PgPool, user_uuid: &Uuid) -> Result<String, AppError> {
   let email = sqlx::query_scalar!(
     r#"
-      SELECT name FROM af_user WHERE uuid = $1
+      SELECT name FROM public.af_user WHERE uuid = $1
     "#,
     user_uuid
   )
@@ -271,7 +271,7 @@ pub async fn select_name_and_email_from_uuid(
 ) -> Result<(String, String), AppError> {
   let row = sqlx::query!(
     r#"
-    SELECT name, email FROM af_user WHERE uuid = $1
+    SELECT name, email FROM public.af_user WHERE uuid = $1
     "#,
     user_uuid
   )
@@ -292,7 +292,7 @@ pub async fn select_web_user_from_uid(
       uuid,
       name,
       metadata ->> 'icon_url' AS avatar_url
-    FROM af_user
+    FROM public.af_user
     WHERE uid = $1
     "#,
     uid
@@ -316,7 +316,7 @@ pub async fn select_user_with_avatar<'a, E: Executor<'a, Database = Postgres>>(
         email,
         name,
         metadata ->> 'icon_url' AS avatar_url
-      FROM af_user
+      FROM public.af_user
       WHERE uid = $1;
     "#,
     uid

@@ -1,0 +1,7 @@
+tunnel: fe347262-63b1-4034-81b5-361d4f0a74e0
+credentials-file: /etc/cloudflared/fe347262-63b1-4034-81b5-361d4f0a74e0.json
+
+ingress:
+  - hostname: appflowy.ramonma.online
+    service: http://appflowy-cloud-caddy-1:80
+  - service: http_status:404

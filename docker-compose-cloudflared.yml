@@ -1,0 +1,15 @@
+# Cloudflared tunnel for AppFlowy
+services:
+  cloudflared:
+    restart: on-failure
+    image: cloudflare/cloudflared:latest
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared/config.yml:/etc/cloudflared/config.yml
+      - ./cloudflared/fe347262-63b1-4034-81b5-361d4f0a74e0.json:/etc/cloudflared/fe347262-63b1-4034-81b5-361d4f0a74e0.json
+    networks:
+      - appflowy-cloud_default
+
+networks:
+  appflowy-cloud_default:
+    external: true
