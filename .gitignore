@@ -24,3 +24,5 @@ flake.lock
 
 docker-compose.override.yml
 .serena
+# Cloudflared tunnel credentials
+cloudflared/*.json
